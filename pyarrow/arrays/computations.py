@@ -15,3 +15,11 @@ struct_year = pc.value_counts(years)
 
 
 
+
+
+
+
+
+
+
+
