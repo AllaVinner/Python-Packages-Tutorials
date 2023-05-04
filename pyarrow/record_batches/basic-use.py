@@ -21,5 +21,5 @@ batch[0]
 batch_slice = batch.slice(1,3)
 batch_slice[1]
 
-
+batch.field(0).metadata
 
