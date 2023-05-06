@@ -23,12 +23,26 @@ def get_overlap(original, new):
             ll.append(n)
     return ll
 
+##############################################################################
+# Col Table
+##############################################################################
+
 overlap_columns = get_overlap(t1.column_names, t2.column_names)
 overlap_columns.remove('id')
-overlap_columns.remove('row_i')
 joined_tables = t1.join(t2.drop_columns(overlap_columns),
-                        keys=['id'], join_type='full outer', right_suffix=suffix)
+                        keys=['id'],
+                        join_type='full outer',
+                        right_suffix=suffix)
+col_table = joined_tables\
+    .sort_by('row_i')\
+    .drop_columns(['row_i'])\
+    .append_column('row_i',pa.array([i for i in range(joined_tables.num_rows)]))
 
-joined_tables
 
+col_table.to_pandas()
+
+
+##############################################################################
+# Row table
+##############################################################################
 
