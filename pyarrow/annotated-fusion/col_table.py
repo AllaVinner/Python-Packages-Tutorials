@@ -57,6 +57,30 @@ def col_fusion(col_table_1, col_table_2):
     return coalesced_table
 
 
-col_fusion(col_table_1, col_table_2).to_pandas()
+fused = col_fusion(col_table_1, col_table_2)
+
+
+def get_mapper(old_table, fused_table):
+    c_map = old_table.join(fused_table,
+                           keys=[column],
+                           join_type='right outer',
+                           left_suffix='_new').select(['col_i', 'col_i_new'])
+    return c_map
+
+
+c2.join(fused, keys=[INDEX_COLUMN],
+        left_suffix=left_suffix,
+        right_suffix=right_suffix)\
+    .select([COLUMN_ID_COLUMN+left_suffix,
+             COLUMN_ID_COLUMN+right_suffix])
+
+
+def map_column(tbl, map_table, column, map_new_column):
+    right_suffix = '_right_table'
+    left_suffix = '_left_table'
+    return tbl.join(map_table, keys=[column],
+            ).drop_columns([column])\
+        .rename_columns(tbl.column_names)
+
 
 

@@ -29,6 +29,16 @@ def row_fusion(row_table_1, row_table_2):
     row_table = pa.concat_tables([row_table_1, re_enumerated_table_2], promote = True).sort_by(ROW_ID_COLUMN)
     return row_table
 
+
+col_table_1 = pa.table([pa.array([1, 2, 3], type=pa.int32()),
+                        pa.array([10, 20, 30], type=pa.int32()),
+                        pa.array([11, 21, 31], type=pa.int32()),
+                        pa.array([0, 1, 2], type=pa.int32())],
+                       names=[INDEX_COLUMN, "same", "diff1", COLUMN_ID_COLUMN])
+
+
+
+
 row_fusion(r1, r2).to_pandas()
 
 row_table_1 = r1
