@@ -3,6 +3,9 @@ import pyarrow.compute as pc
 
 INDEX_COLUMN = 'id'
 COLUMN_ID_COLUMN = 'col_i'
+SOURCE_COLUMN = 'source'
+SOURCE_COLUMN_ID_COLUMN = 'source_col_id'
+
 
 col_table_1 = pa.table([pa.array([1, 2, 3], type=pa.int32()),
                pa.array([10, 20, 30], type=pa.int32()),
@@ -18,6 +21,11 @@ col_table_2 = pa.table([pa.array([3, 2, 4], type=pa.int32()),
               names=[INDEX_COLUMN, "same", "diff2", COLUMN_ID_COLUMN])
 
 
+col_table_3 = pa.table([pa.array([4, 1, 5], type=pa.int32()),
+                        pa.array([11, 22, 333], type=pa.int32()),
+                        pa.array([0, 1, 2], type=pa.int32())],
+                       names=[INDEX_COLUMN, "same", COLUMN_ID_COLUMN])
+
 
 
 def get_overlap(original, new):
@@ -29,58 +37,40 @@ def get_overlap(original, new):
     return ll
 
 
-
-def col_fusion(col_table_1, col_table_2):
+def col_fusion(col_tables):
     # TODO: Use select to set the column order to something sensible
-    overlap_columns = get_overlap(col_table_1.column_names,
-                                  col_table_2.column_names)
-    overlap_columns.remove(INDEX_COLUMN)
-    overlap_columns.remove(COLUMN_ID_COLUMN)
+    column_id_type = col_tables[0][COLUMN_ID_COLUMN].type
+
     right_suffix = '_right_table'
     left_suffix = '_left_table'
-    joined_tables = col_table_1.join(col_table_2.drop_columns([COLUMN_ID_COLUMN]),
-                                     keys=['id'],
-                                     join_type='full outer',
-                                     left_suffix=left_suffix,
-                                     right_suffix=right_suffix)
 
-    re_enumerated_table = joined_tables.sort_by(COLUMN_ID_COLUMN)\
-        .drop_columns([COLUMN_ID_COLUMN])\
-        .append_column(COLUMN_ID_COLUMN, pa.array([i for i in range(joined_tables.num_rows)]))
+    fused_table = col_tables[0]
+    for col_table in col_tables[1:]:
+        overlap_columns = get_overlap(fused_table.column_names,
+                                      col_table.column_names)
+        overlap_columns.remove(INDEX_COLUMN)
+        overlap_columns.remove(COLUMN_ID_COLUMN)
 
-    coalesced_table = re_enumerated_table
-    for c in overlap_columns:
-        coalesced_table = coalesced_table.append_column(c, pc.coalesce(coalesced_table[c+left_suffix],
-                                                                       coalesced_table[c+right_suffix]))\
-            .drop_columns([c+left_suffix, c+right_suffix])
-
-    return coalesced_table
+        fused_table = fused_table.join(col_table.drop_columns([COLUMN_ID_COLUMN]),
+                                       keys=['id'],
+                                       join_type='full outer',
+                                       left_suffix=left_suffix,
+                                       right_suffix=right_suffix)
 
 
-fused = col_fusion(col_table_1, col_table_2)
+        for column in overlap_columns:
+            fused_table = fused_table.append_column(column, pc.coalesce(fused_table[column+left_suffix],
+                                                                   fused_table[column+right_suffix])) \
+            .drop_columns([column+left_suffix, column+right_suffix])
+
+    # Enumerate new col
+    fused_table = fused_table.sort_by(COLUMN_ID_COLUMN) \
+        .drop_columns([COLUMN_ID_COLUMN]) \
+        .append_column(COLUMN_ID_COLUMN, pa.array([i for i in range(fused_table.num_rows)], type=column_id_type))
+
+    return fused_table
 
 
-def get_mapper(old_table, fused_table):
-    c_map = old_table.join(fused_table,
-                           keys=[column],
-                           join_type='right outer',
-                           left_suffix='_new').select(['col_i', 'col_i_new'])
-    return c_map
-
-
-c2.join(fused, keys=[INDEX_COLUMN],
-        left_suffix=left_suffix,
-        right_suffix=right_suffix)\
-    .select([COLUMN_ID_COLUMN+left_suffix,
-             COLUMN_ID_COLUMN+right_suffix])
-
-
-def map_column(tbl, map_table, column, map_new_column):
-    right_suffix = '_right_table'
-    left_suffix = '_left_table'
-    return tbl.join(map_table, keys=[column],
-            ).drop_columns([column])\
-        .rename_columns(tbl.column_names)
-
+col_fusion([col_table_1, col_table_2, col_table_3]).to_pandas()
 
 
