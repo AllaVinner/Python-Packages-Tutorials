@@ -49,4 +49,9 @@ row_fused.to_pandas()
 
 
 
+row_map = {a:b for a,b in zip(row_fused[SOURCE_ROW_ID_COLUMN].to_pylist(),
+                              row_fused[ROW_ID_COLUMN].to_pylist())}
+
+row_map
+
 

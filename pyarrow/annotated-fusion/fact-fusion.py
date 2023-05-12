@@ -65,10 +65,26 @@ def fuse_facts(fact_tables, col_fused, col_tables, row_fused, table_names):
     return fused_table
 
 
+def fuse_facts2(current_fact, new_fact, row_map, col_map):
+    map_key_column = 'from'
+    map_val_column = 'to'
+
+    row_map_table = pa.table([pa.array([k for k in row_map.keys()], new_fact[ROW_ID_COLUMN].type),
+                              pa.array([v for v in row_map.values()], current_fact[ROW_ID_COLUMN].type)],
+                             names=[map_key_column, map_val_column])
+
+    col_map_table = pa.table([pa.array([k for k in col_map.keys()], new_fact[COL_ID_COLUMN].type),
+                              pa.array([v for v in col_map.values()], current_fact[COL_ID_COLUMN].type)],
+                             names=[map_key_column, map_val_column])
+
+    new_fact = map_column(new_fact, COLUMN_ID_COLUMN, col_map_table, map_key_column, map_val_column)
+    new_fact = map_column(new_fact, ROW_ID_COLUMN, row_map_table, map_key_column, map_val_column)
+    fused_table = pa.concat_tables([current_fact, new_fact], promote=True)
+    return fused_table
+
+
+
 fuse_facts([fact_table_1, fact_table_2], col_fused, [col_table_1, col_table_2], row_fused, ['r1', 'r2']).to_pandas()
-
-
-
 
 
 

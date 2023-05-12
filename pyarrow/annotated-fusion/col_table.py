@@ -71,6 +71,13 @@ def col_fusion(col_tables):
     return fused_table
 
 
-col_fusion([col_table_1, col_table_2, col_table_3]).to_pandas()
+col_fused = col_fusion([col_table_1, col_table_2, col_table_3])
+col_fused
 
+col_map_table = col_table_2.select([INDEX_COLUMN, COLUMN_ID_COLUMN]).join(col_fused.select([INDEX_COLUMN, COLUMN_ID_COLUMN]),
+                                                          keys=[INDEX_COLUMN],
+                                                          right_suffix='_new')
+
+col_map = {a:b for a,b in zip(col_map_table[COLUMN_ID_COLUMN].to_pylist(),
+                    col_map_table[COLUMN_ID_COLUMN+'_new'].to_pylist())}
 
