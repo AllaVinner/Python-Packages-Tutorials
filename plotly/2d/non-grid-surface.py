@@ -1,11 +1,3 @@
-##############################################################################
-# Plotly sources
-##############################################################################
-# Properties
-# https://plotly.com/python/reference/layout/xaxis/
-# Classes
-#https://plotly.github.io/plotly.py-docs/generated/plotly.graph_objects.Heatmap.html
-
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -18,6 +10,10 @@ import json
 from PIL import Image
 
 from scipy.ndimage import gaussian_filter
+##############################################################################
+# Plotly sources
+##############################################################################
+
 
 N = 1000
 smoothness = 0.04 
