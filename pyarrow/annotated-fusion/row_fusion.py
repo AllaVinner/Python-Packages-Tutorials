@@ -21,8 +21,6 @@ row_table_2 = pa.table([pa.array([3, 2, 4], type=pa.int32()),
               names=[INDEX_COLUMN, "same", "diff2", ROW_ID_COLUMN])
 
 
-
-
 def row_fusion(row_tables, table_names):
 
     fused_table = row_tables[0]
@@ -48,9 +46,9 @@ row_table_2.to_pandas()
 row_fused.to_pandas()
 
 
-
-row_map = {a:b for a,b in zip(row_fused[SOURCE_ROW_ID_COLUMN].to_pylist(),
-                              row_fused[ROW_ID_COLUMN].to_pylist())}
+row_fused_2 = row_fused.filter(pc.field(SOURCE_COLUMN) == 'r2')
+row_map = {a: b for a,b in zip(row_fused_2[SOURCE_ROW_ID_COLUMN].to_pylist(),
+                              row_fused_2[ROW_ID_COLUMN].to_pylist())}
 
 row_map
 
