@@ -19,24 +19,18 @@ from PIL import Image
 
 from scipy.ndimage import gaussian_filter
 
-# Equation of ring cyclide
-# see https://en.wikipedia.org/wiki/Dupin_cyclide
-import numpy as np
-a, b, d = 1.32, 1., 0.8
-c = a**2 - b**2
-u, v = np.mgrid[0:2*np.pi:100j, 0:2*np.pi:100j]
-
 N = 1000
-smoothness = 0.1
+smoothness = 0.03
 
 
 theta = np.linspace(0, 2*np.pi, N)
 rho = np.linspace(0, 1, N)
 
-disturbance = gaussian_filter(np.random.randn(N), sigma= N*smoothness, mode='wrap')
+disturbance = gaussian_filter(np.random.randn(N,1), sigma= N*smoothness, mode='wrap')
 
 Rho, Theta = np.meshgrid(rho, theta)
-R = Rho*(5+np.cos(4*Theta+2*np.pi/12) + 40*disturbance)
+R = Rho*(5+np.cos(5*Theta+2*np.pi/12) + 10*disturbance)
+R = Rho*(5+ 10*disturbance)
 
 X = R*np.cos(Theta)
 Y = R*np.sin(Theta)
@@ -54,8 +48,8 @@ fig.add_trace(go.Surface(x=X, y=Y, z=Z, surfacecolor=X+Y), 1, 2)
 axis_range = 10
 fig.update_layout(
     scene = dict(
-        xaxis = dict(visible=False, range=[-axis_range, axis_range]),
-        yaxis = dict(visible=False, range=[-axis_range, axis_range]),
+        xaxis = dict(visible=False),
+        yaxis = dict(visible=False),
         zaxis =dict(visible=True,showticklabels=False, title='')
     ),
     scene2 = dict(
@@ -68,11 +62,18 @@ fig.update_layout(
 camera = dict(
     up=dict(x=0, y=1, z=0),
     center=dict(x=0, y=0, z=0),
-    eye=dict(x=0, y=0, z=2)
+    eye=dict(x=0, y=0, z=1)
 )
 
-fig.update_layout(scene_camera=camera, title='name')
+camera2 = dict(
+    up=dict(x=0, y=0, z=1),
+    center=dict(x=0, y=0, z=0),
+    eye=dict(x=1, y=-1, z=0.6)
+)
+
+
+fig.update_layout(scene=dict(camera=camera),
+                  scene2=dict(camera=camera2))
 fig.show()
 
-fig.layout.scene2
-
+write_fig_tree(fig, 'sample.json')
