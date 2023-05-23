@@ -55,7 +55,7 @@ ai = 6062
 bi = 5114
 overlap(reads[ai], reads[bi])
 
-# Q4 Nodes with one 7161
+# Q4 Nodes with one 
 output_nodes = set()
 for (src, dst) in pairs:
     output_nodes.add(src)
