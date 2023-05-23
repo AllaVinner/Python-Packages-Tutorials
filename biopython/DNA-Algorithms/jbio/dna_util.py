@@ -7,3 +7,6 @@ def reverseComplement(s):
     for base in s:
         t = complement[base] + t
     return t
+
+
+
