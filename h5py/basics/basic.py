@@ -74,24 +74,25 @@ def get_from_path(struct, path):
     return temp
 
 def dataset_info(obj, path = None):
-    return obj.name
+    return obj.name.split('/')[-1]
 
 
 def group_info(f, struct, path):
-    return {k: rec(f, struct, '/'.join([path, k])) for k in f[path].keys()}
+    return {'children' : {k: rec(f, struct, '/'.join([path, k])) for k in f[path].keys()},
+            'attrs': {k: v for k, v in f[path].attrs.items()}}
 
 def rec(f, struct, path):
     if is_h5_dataset(f[path]):
-        struct[path.split('/')[-1]] = dataset_info(f[path])
+        return dataset_info(f[path])
     else:
-        struct[path.split('/')[-1]] = group_info(f, struct, path)
+        return group_info(f, struct, path)
 
 def h5_to_json(file_path):
     struct = {}
     paths = ['']
     with h5py.File(file_path, 'r') as f:
-        print(group_info(f, {}, ''))
+        print(group_info(f, {}, '/'))
 
-h5_to_json('big.h5')
+h5_to_json('pbmc3k_processed.h5ad')
 
 
