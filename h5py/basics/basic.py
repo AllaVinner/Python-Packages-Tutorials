@@ -46,9 +46,25 @@ if __name__ == '__main__':
     investigate_sparse_dataset('big.h5', 'big')
 
 
+###################### Scratch
+
+def is_h5_group(obj) -> bool:
+    return isinstance(obj, h5py.Group)
+
+def is_h5_dataset(obj) -> bool:
+    return isinstance(obj, h5py.Dataset)
+
+def list_file_structure(file: str):
+    paths = list('/')
+    with h5py.File(file_path, 'r') as f:
+        while len(paths) != 0:
+            path = paths.pop()
+            obj = f[path]
+            if is_h5_group(obj):
+                paths.extend(['/'.join([path, k]) for k in obj.keys()])
+            print("  " * len(path.split('/')), path)
 
 
-
-
+list_file_structure('big.h5')
 
 
