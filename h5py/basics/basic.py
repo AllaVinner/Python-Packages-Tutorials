@@ -67,4 +67,31 @@ def list_file_structure(file: str):
 
 list_file_structure('big.h5')
 
+def get_from_path(struct, path):
+    temp = struct
+    for o in path.split('/'):
+        temp = temp[o]
+    return temp
+
+def dataset_info(obj, path = None):
+    return obj.name
+
+
+def group_info(f, struct, path):
+    return {k: rec(f, struct, '/'.join([path, k])) for k in f[path].keys()}
+
+def rec(f, struct, path):
+    if is_h5_dataset(f[path]):
+        struct[path.split('/')[-1]] = dataset_info(f[path])
+    else:
+        struct[path.split('/')[-1]] = group_info(f, struct, path)
+
+def h5_to_json(file_path):
+    struct = {}
+    paths = ['']
+    with h5py.File(file_path, 'r') as f:
+        print(group_info(f, {}, ''))
+
+h5_to_json('big.h5')
+
 
