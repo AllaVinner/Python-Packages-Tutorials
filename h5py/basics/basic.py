@@ -74,7 +74,7 @@ def get_from_path(struct, path):
     return temp
 
 def dataset_info(obj, path = None):
-    return obj.name.split('/')[-1]
+    return {'attrs': {k: v for k, v in obj.attrs.items()}}
 
 
 def group_info(f, struct, path):
