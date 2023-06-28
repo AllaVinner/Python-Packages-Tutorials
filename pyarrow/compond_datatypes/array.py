@@ -6,9 +6,26 @@ import pyarrow.parquet as pq
 ##############################################################################
 # Setup
 
-days = pa.array([{'UMAP_X': 1., 'UMAP_Y': 2.3}, {'UMAP_X': 2., 'UMAP_Y': 4.}], type=pa.dense_union([pa.field('UMAP_X', pa.float32()), pa.field('UMAP_Y', pa.float32())]))
+st = pa.struct([pa.field('x', pa.float32()), pa.field('y', pa.float32())])
+days = pa.array([{'x': 1., 'y': 2.3}, {'x': 2., 'y': 4.}], type=st)
 
-days = pa.array([[1, 3], [12, 17], [23, 28]], type=pa.int8())
-months = pa.array([1, 3, 5, 7, 1], type=pa.int8())
-years = pa.array([1990, 2000, 1995, 2000, 1995], type=pa.int16())
-birthdays_table = pa.table([days, months, years], names=["days", "months", "years"])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
