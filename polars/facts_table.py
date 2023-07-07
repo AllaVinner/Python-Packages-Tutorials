@@ -127,15 +127,9 @@ join_table = var1.join(var2, on='id', how='outer', suffix=suffix).sort(by='var_i
 for dub_col in duplicat_columns:
     join_table = join_table.with_columns(pl.coalesce([dub_col, dub_col+suffix]).alias(dub_col)).drop(dub_col+suffix)
 
-join_table.with_columns([
-        pl.col("var_id")
-    ]
-)
+join_table = join_table.drop('var_id').insert_at_idx(len(join_table.columns)-1, pl.Series('var_id', [i for i in range(len(join_table))]))
 
-var1_unique
-var2_unique
-duplicat_columns
-
+join_table
 
 
 
